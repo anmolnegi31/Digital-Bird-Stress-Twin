@@ -1,0 +1,260 @@
+# Digital Bird Stress Twin - Configuration File
+
+# Project Settings
+project:
+  name: "digital-bird-stress-twin"
+  version: "0.1.0"
+  description: "Production-grade Digital Bird Stress Twin"
+
+# Data Ingestion Settings
+data_ingestion:
+  ebird:
+    base_url: "https://api.ebird.org/v2/data/obs"
+    region: "IN"
+    rate_limit: 10  # requests per minute
+    timeout: 30
+    retry_attempts: 3
+    
+  xeno_canto:
+    base_url: "https://xeno-canto.org/api/2/recordings"
+    rate_limit: 30
+    timeout: 60
+    download_timeout: 300
+    quality_filter: "A"  # A: excellent, B: good
+    
+  tomorrow_io:
+    base_url: \"https://api.tomorrow.io/v4\"
+    units: \"metric\"
+    rate_limit: 25  # Free tier: 25 requests/hour, 500/day
+    timeout: 30
+    features:
+      - \"temperature\"
+      - \"temperatureApparent\"
+      - \"humidity\"
+      - \"windSpeed\"
+      - \"pressureSeaLevel\"
+      - \"precipitationIntensity\"
+      - \"visibility\"
+      - \"cloudCover\"
+      - \"weatherCode\"
+    
+  target_species:
+    - "Corvus splendens"  # House Crow
+    - "Acridotheres tristis"  # Common Myna
+    - "Columba livia"  # Rock Pigeon
+    
+  locations:
+    - name: "Delhi"
+      lat: 28.6139
+      lon: 77.2090
+    - name: "Mumbai"
+      lat: 19.0760
+      lon: 72.8777
+    - name: "Bangalore"
+      lat: 12.9716
+      lon: 77.5946
+
+# Feature Engineering Settings
+feature_engineering:
+  audio:
+    sample_rate: 22050
+    n_mfcc: 40
+    n_fft: 2048
+    hop_length: 512
+    n_mels: 128
+    fmin: 0
+    fmax: 11025
+    
+  spectral_features:
+    - "spectral_centroid"
+    - "spectral_bandwidth"
+    - "spectral_rolloff"
+    - "zero_crossing_rate"
+    - "spectral_entropy"
+    - "spectral_flatness"
+    
+  temporal_window: 5  # seconds
+  overlap: 0.5  # 50% overlap
+  
+  stress_index:
+    weights:
+      call_rate: 0.25
+      frequency_deviation: 0.25
+      amplitude_variation: 0.20
+      spectral_entropy: 0.15
+      temporal_irregularity: 0.15
+
+# Model Architecture Settings
+models:
+  lstm:
+    architecture:
+      input_size: 128
+      hidden_size: 256
+      num_layers: 3
+      dropout: 0.3
+      bidirectional: true
+      attention: true
+      
+    training:
+      batch_size: 32
+      epochs: 100
+      learning_rate: 0.001
+      weight_decay: 0.0001
+      early_stopping_patience: 15
+      reduce_lr_patience: 5
+      reduce_lr_factor: 0.5
+      min_lr: 0.00001
+      
+    sequence_length: 50  # time steps
+    prediction_horizon: 72  # hours
+    
+  vae:
+    architecture:
+      input_dim: 40  # MFCC dimensions
+      latent_dim: 32
+      encoder_layers: [128, 64]
+      decoder_layers: [64, 128]
+      activation: "relu"
+      
+    training:
+      batch_size: 64
+      epochs: 150
+      learning_rate: 0.0005
+      beta: 1.0  # KL divergence weight
+      reconstruction_weight: 1.0
+      
+    conditioning:
+      stress_levels: [0.0, 0.25, 0.5, 0.75, 1.0]
+
+# Training Settings
+training:
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  random_seed: 42
+  
+  augmentation:
+    enabled: true
+    techniques:
+      - "time_stretch"
+      - "pitch_shift"
+      - "add_noise"
+      - "time_mask"
+      - "frequency_mask"
+    
+  cross_validation:
+    enabled: true
+    n_folds: 5
+    strategy: "time_series"
+
+# MLOps Settings
+mlops:
+  mlflow:
+    experiment_name: "digital-bird-stress-twin"
+    run_name_prefix: "run"
+    artifact_location: "./mlartifacts"
+    log_params: true
+    log_metrics: true
+    log_models: true
+    
+  model_registry:
+    model_name: "bird-stress-predictor"
+    staging_threshold: 0.85  # R² score
+    production_threshold: 0.90
+    
+  versioning:
+    semantic_versioning: true
+    auto_increment: true
+
+# Monitoring Settings
+monitoring:
+  evidently:
+    reference_window: 1000  # samples
+    current_window: 200
+    
+  drift_detection:
+    feature_drift_threshold: 0.3
+    prediction_drift_threshold: 0.5
+    data_quality_threshold: 0.8
+    
+  metrics:
+    - "mae"
+    - "rmse"
+    - "r2_score"
+    - "mape"
+    
+  alerts:
+    enabled: true
+    channels:
+      - "log"
+      - "email"  # configure SMTP
+    
+  retraining:
+    auto_trigger: true
+    min_samples: 500
+    performance_threshold: 0.80
+
+# API Settings
+api:
+  title: "Digital Bird Stress Twin API"
+  description: "Production-grade API for avian stress prediction and simulation"
+  version: "1.0.0"
+  
+  cors:
+    enabled: true
+    origins:
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+    
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+    
+  authentication:
+    enabled: false  # Set to true in production
+    type: "bearer"
+    
+  caching:
+    enabled: true
+    ttl: 300  # seconds
+
+# Logging Settings
+logging:
+  level: "INFO"
+  format: "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+  
+  handlers:
+    console:
+      enabled: true
+      colorize: true
+      
+    file:
+      enabled: true
+      rotation: "500 MB"
+      retention: "10 days"
+      compression: "zip"
+      
+  loggers:
+    api: "INFO"
+    model: "INFO"
+    data: "INFO"
+    monitoring: "WARNING"
+
+# Paths
+paths:
+  data:
+    raw: "./data/raw"
+    processed: "./data/processed"
+    interim: "./data/interim"
+    external: "./data/external"
+    
+  models:
+    checkpoints: "./models/checkpoints"
+    registry: "./models/registry"
+    exports: "./models/exports"
+    
+  logs: "./logs"
+  
+  monitoring:
+    reports: "./monitoring/reports"
+    evidently: "./monitoring/evidently_project"

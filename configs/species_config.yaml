@@ -1,0 +1,104 @@
+# Species-Specific Configuration for Digital Bird Stress Twin
+
+species:
+  house_crow:
+    scientific_name: "Corvus splendens"
+    common_name: "House Crow"
+    
+    vocal_characteristics:
+      frequency_range: [1000, 4000]  # Hz
+      dominant_frequency: 2500
+      call_duration: [0.3, 1.5]  # seconds
+      typical_call_rate: [5, 15]  # calls per minute (normal)
+      stressed_call_rate: [20, 40]  # calls per minute (stressed)
+      
+    stress_indicators:
+      frequency_shift_threshold: 200  # Hz deviation
+      amplitude_increase_threshold: 1.5  # multiplier
+      call_rate_increase_threshold: 2.0  # multiplier
+      
+    environmental_sensitivity:
+      temperature: 0.7  # sensitivity weight
+      pressure: 0.9
+      humidity: 0.6
+      wind_speed: 0.5
+      
+  common_myna:
+    scientific_name: "Acridotheres tristis"
+    common_name: "Common Myna"
+    
+    vocal_characteristics:
+      frequency_range: [1500, 5000]
+      dominant_frequency: 3000
+      call_duration: [0.2, 1.0]
+      typical_call_rate: [8, 20]
+      stressed_call_rate: [25, 50]
+      
+    stress_indicators:
+      frequency_shift_threshold: 250
+      amplitude_increase_threshold: 1.6
+      call_rate_increase_threshold: 2.2
+      
+    environmental_sensitivity:
+      temperature: 0.6
+      pressure: 0.8
+      humidity: 0.7
+      wind_speed: 0.4
+      
+  rock_pigeon:
+    scientific_name: "Columba livia"
+    common_name: "Rock Pigeon"
+    
+    vocal_characteristics:
+      frequency_range: [500, 2500]
+      dominant_frequency: 1200
+      call_duration: [0.5, 2.0]
+      typical_call_rate: [3, 10]
+      stressed_call_rate: [15, 30]
+      
+    stress_indicators:
+      frequency_shift_threshold: 150
+      amplitude_increase_threshold: 1.4
+      call_rate_increase_threshold: 1.8
+      
+    environmental_sensitivity:
+      temperature: 0.5
+      pressure: 0.9
+      humidity: 0.6
+      wind_speed: 0.7
+
+# Disaster-specific stress patterns
+disaster_patterns:
+  earthquake:
+    pre_event_window: 48  # hours
+    stress_buildup_rate: 0.3  # per hour
+    peak_stress_level: 0.95
+    recovery_time: 72  # hours
+    
+    indicators:
+      - increased_call_rate
+      - erratic_movement_patterns
+      - frequency_modulation
+      - flock_coherence_loss
+      
+  storm:
+    pre_event_window: 24
+    stress_buildup_rate: 0.4
+    peak_stress_level: 0.90
+    recovery_time: 48
+    
+    indicators:
+      - shelter_seeking_calls
+      - high_frequency_chirps
+      - reduced_foraging_calls
+      
+  heat_wave:
+    pre_event_window: 72
+    stress_buildup_rate: 0.15
+    peak_stress_level: 0.80
+    recovery_time: 96
+    
+    indicators:
+      - reduced_activity_calls
+      - panting_vocalizations
+      - territorial_call_reduction
